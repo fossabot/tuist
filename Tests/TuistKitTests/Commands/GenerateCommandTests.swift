@@ -54,7 +54,7 @@ final class GenerateCommandTests: XCTestCase {
         let result = try parser.parse([GenerateCommand.command, "-c", "Debug"])
         try subject.run(with: result)
 
-        XCTAssertTrue(printer.printWarningArgs.contains("You can run 'tuist up' to install everything you need to run this project"))
+        XCTAssertTrue(printer.printWarningArgs.contains(GraphUp.warningMessage))
     }
 
     func test_run_fatalErrors_when_theworkspaceGenerationFails() throws {
