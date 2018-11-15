@@ -16,7 +16,6 @@ class GenerateCommand: NSObject, Command {
     fileprivate let printer: Printing
     fileprivate let system: Systeming
     fileprivate let resourceLocator: ResourceLocating
-    fileprivate let graphUp: GraphUpping
 
     let pathArgument: OptionArgument<String>
     let configArgument: OptionArgument<String>
@@ -31,8 +30,7 @@ class GenerateCommand: NSObject, Command {
                   parser: parser,
                   printer: printer,
                   system: system,
-                  resourceLocator: ResourceLocator(),
-                  graphUp: GraphUp(printer: printer, system: system))
+                  resourceLocator: ResourceLocator())
     }
 
     init(graphLoader: GraphLoading,
@@ -40,15 +38,13 @@ class GenerateCommand: NSObject, Command {
          parser: ArgumentParser,
          printer: Printing,
          system: Systeming,
-         resourceLocator: ResourceLocating,
-         graphUp: GraphUpping) {
+         resourceLocator: ResourceLocating) {
         let subParser = parser.add(subparser: GenerateCommand.command, overview: GenerateCommand.overview)
         self.graphLoader = graphLoader
         self.workspaceGenerator = workspaceGenerator
         self.printer = printer
         self.system = system
         self.resourceLocator = resourceLocator
-        self.graphUp = graphUp
         pathArgument = subParser.add(option: "--path",
                                      shortName: "-p",
                                      kind: String.self,
@@ -65,11 +61,6 @@ class GenerateCommand: NSObject, Command {
         let path = self.path(arguments: arguments)
         let config = try parseConfig(arguments: arguments)
         let graph = try graphLoader.load(path: path)
-
-        if try !graphUp.isMet(graph: graph) {
-            printer.print(warning: GraphUp.warningMessage)
-        }
-
         try workspaceGenerator.generate(path: path,
                                         graph: graph,
                                         options: GenerationOptions(buildConfiguration: config),

@@ -15,7 +15,6 @@ final class GenerateCommandTests: XCTestCase {
     var parser: ArgumentParser!
     var printer: MockPrinter!
     var resourceLocator: ResourceLocator!
-    var graphUp: MockGraphUp!
 
     override func setUp() {
         super.setUp()
@@ -25,15 +24,13 @@ final class GenerateCommandTests: XCTestCase {
         workspaceGenerator = MockWorkspaceGenerator()
         parser = ArgumentParser.test()
         resourceLocator = ResourceLocator()
-        graphUp = MockGraphUp()
 
         subject = GenerateCommand(graphLoader: graphLoader,
                                   workspaceGenerator: workspaceGenerator,
                                   parser: parser,
                                   printer: printer,
                                   system: System(),
-                                  resourceLocator: resourceLocator,
-                                  graphUp: graphUp)
+                                  resourceLocator: resourceLocator)
     }
 
     func test_command() {
@@ -47,14 +44,6 @@ final class GenerateCommandTests: XCTestCase {
     func test_run_fatalErrors_when_theConfigIsInvalid() throws {
         let result = try parser.parse([GenerateCommand.command, "-c", "invalid_config"])
         XCTAssertThrowsError(try subject.run(with: result))
-    }
-
-    func test_run_printsAWarning_when_theEnvironmentIsNotSetup() throws {
-        graphUp.isMetStub = { _ in false }
-        let result = try parser.parse([GenerateCommand.command, "-c", "Debug"])
-        try subject.run(with: result)
-
-        XCTAssertTrue(printer.printWarningArgs.contains(GraphUp.warningMessage))
     }
 
     func test_run_fatalErrors_when_theworkspaceGenerationFails() throws {
